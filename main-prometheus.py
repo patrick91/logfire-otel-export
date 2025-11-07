@@ -10,6 +10,10 @@ import time
 
 from prometheus_client import Counter, Histogram, start_http_server
 
+# Set random seed for reproducible data generation
+# This ensures both main.py and main-prometheus.py generate the same data
+random.seed(42)
+
 # Create a counter metric for total uploads
 upload_counter = Counter(
     "file_uploads_total",

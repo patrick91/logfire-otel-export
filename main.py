@@ -11,11 +11,17 @@ import time
 
 import logfire
 
+# Set random seed for reproducible data generation
+# This ensures both main.py and main-prometheus.py generate the same data
+random.seed(42)
+
 # Configure OpenTelemetry to export to local OTel Collector
 # The SDK will automatically append /v1/traces and /v1/metrics to this URL
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
 # Explicitly enable OTLP exporter for metrics
 os.environ["OTEL_METRICS_EXPORTER"] = "otlp"
+# Set metric export interval to 5 seconds (default is 60s)
+os.environ["OTEL_METRIC_EXPORT_INTERVAL"] = "5000"  # milliseconds
 
 # Configure Logfire to use OTLP exporter (not Logfire cloud)
 logfire.configure(
