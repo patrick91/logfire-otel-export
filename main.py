@@ -5,16 +5,16 @@ This application simulates file uploads with varying sizes and exports
 histogram metrics via OpenTelemetry to Grafana/Prometheus.
 """
 
-import os
 import random
 import time
+
 import logfire
 
 # Configure Logfire to send metrics to OpenTelemetry Collector
 # The collector will then export to Prometheus
 logfire.configure(
     send_to_logfire=False,  # Don't send to Logfire cloud
-    service_name='histogram-demo',
+    service_name="histogram-demo",
     # Export to local OTel Collector via OTLP
     additional_metric_readers=[],  # Will use default OTLP exporter
 )
@@ -23,16 +23,16 @@ logfire.configure(
 # Note: Logfire uses OpenTelemetry histograms which don't have explicit buckets
 # The buckets are determined by the backend (Prometheus in this case)
 uploaded_file_bytes = logfire.metric_histogram(
-    'uploaded_file_bytes',
-    unit='bytes',
-    description='Size of uploaded files in bytes',
+    "uploaded_file_bytes",
+    unit="bytes",
+    description="Size of uploaded files in bytes",
 )
 
 # Create another histogram for request duration
 request_duration_seconds = logfire.metric_histogram(
-    'http_request_duration_seconds',
-    unit='s',
-    description='HTTP request latency in seconds',
+    "http_request_duration_seconds",
+    unit="s",
+    description="HTTP request latency in seconds",
 )
 
 
@@ -40,17 +40,16 @@ def simulate_file_upload():
     """Simulate a file upload with random size"""
     # Generate random file sizes with different distributions
     file_type = random.choices(
-        ['small', 'medium', 'large', 'very_large'],
-        weights=[50, 30, 15, 5]
+        ["small", "medium", "large", "very_large"], weights=[50, 30, 15, 5]
     )[0]
 
-    if file_type == 'small':
+    if file_type == "small":
         # Small files: 10KB to 500KB
         size = random.randint(10_000, 500_000)
-    elif file_type == 'medium':
+    elif file_type == "medium":
         # Medium files: 500KB to 5MB
         size = random.randint(500_000, 5_000_000)
-    elif file_type == 'large':
+    elif file_type == "large":
         # Large files: 5MB to 50MB
         size = random.randint(5_000_000, 50_000_000)
     else:
@@ -58,11 +57,11 @@ def simulate_file_upload():
         size = random.randint(50_000_000, 100_000_000)
 
     # Record the observation using Logfire
-    uploaded_file_bytes.record(size, attributes={'file_type': file_type})
+    uploaded_file_bytes.record(size, attributes={"file_type": file_type})
 
     # Simulate request duration based on file size
     duration = 0.1 + (size / 10_000_000) + random.uniform(0, 0.5)
-    request_duration_seconds.record(duration, attributes={'file_type': file_type})
+    request_duration_seconds.record(duration, attributes={"file_type": file_type})
 
     print(f"Uploaded {file_type} file: {size:,} bytes, duration: {duration:.2f}s")
 

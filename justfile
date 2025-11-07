@@ -4,9 +4,10 @@
 default:
     @just --list
 
-# Install Python dependencies
+# Install Python dependencies and pre-commit hooks
 install:
     uv sync
+    uv run pre-commit install
 
 # Start Docker services (OTel Collector, Prometheus, Grafana)
 up:
@@ -120,3 +121,14 @@ show-config:
 # View OTel Collector configuration
 show-otel-config:
     @cat otel-collector-config.yml
+
+# Run ruff linter
+lint:
+    uv run ruff check .
+
+# Run ruff formatter
+format:
+    uv run ruff format .
+
+# Run both linter and formatter
+check: lint format

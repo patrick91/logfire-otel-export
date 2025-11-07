@@ -96,6 +96,11 @@ The `just setup` command automatically:
 - `just health` - Check if all services are running
 - `just clean` - Stop everything and remove data
 
+**Development commands:**
+- `just lint` - Run ruff linter
+- `just format` - Run ruff formatter
+- `just check` - Run both linter and formatter
+
 ### Manual Setup (Without Just)
 
 #### 1. Install Python Dependencies

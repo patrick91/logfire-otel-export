@@ -7,24 +7,32 @@ histogram metrics directly for Prometheus to scrape.
 
 import random
 import time
-from prometheus_client import Histogram, start_http_server, Info
 
+from prometheus_client import Histogram, start_http_server
 
 # Create a histogram metric for file upload sizes
 # Explicit buckets for better visualization
 uploaded_file_bytes = Histogram(
-    'uploaded_file_bytes',
-    'Size of uploaded files in bytes',
-    labelnames=['file_type'],
-    buckets=[100_000, 500_000, 1_000_000, 5_000_000, 10_000_000, 50_000_000, 100_000_000]
+    "uploaded_file_bytes",
+    "Size of uploaded files in bytes",
+    labelnames=["file_type"],
+    buckets=[
+        100_000,
+        500_000,
+        1_000_000,
+        5_000_000,
+        10_000_000,
+        50_000_000,
+        100_000_000,
+    ],
 )
 
 # Create another histogram for request duration
 request_duration_seconds = Histogram(
-    'http_request_duration_seconds',
-    'HTTP request latency in seconds',
-    labelnames=['file_type'],
-    buckets=[0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0]
+    "http_request_duration_seconds",
+    "HTTP request latency in seconds",
+    labelnames=["file_type"],
+    buckets=[0.1, 0.25, 0.5, 1.0, 2.5, 5.0, 10.0],
 )
 
 
@@ -32,17 +40,16 @@ def simulate_file_upload():
     """Simulate a file upload with random size"""
     # Generate random file sizes with different distributions
     file_type = random.choices(
-        ['small', 'medium', 'large', 'very_large'],
-        weights=[50, 30, 15, 5]
+        ["small", "medium", "large", "very_large"], weights=[50, 30, 15, 5]
     )[0]
 
-    if file_type == 'small':
+    if file_type == "small":
         # Small files: 10KB to 500KB
         size = random.randint(10_000, 500_000)
-    elif file_type == 'medium':
+    elif file_type == "medium":
         # Medium files: 500KB to 5MB
         size = random.randint(500_000, 5_000_000)
-    elif file_type == 'large':
+    elif file_type == "large":
         # Large files: 5MB to 50MB
         size = random.randint(5_000_000, 50_000_000)
     else:
