@@ -5,18 +5,20 @@ This application simulates file uploads with varying sizes and exports
 histogram metrics via OpenTelemetry to Grafana/Prometheus.
 """
 
+import os
 import random
 import time
 
 import logfire
 
-# Configure Logfire to send metrics to OpenTelemetry Collector
-# The collector will then export to Prometheus
+# Configure OpenTelemetry to export to local OTel Collector
+# The SDK will automatically append /v1/traces and /v1/metrics to this URL
+os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
+
+# Configure Logfire to use OTLP exporter (not Logfire cloud)
 logfire.configure(
     send_to_logfire=False,  # Don't send to Logfire cloud
     service_name="histogram-demo",
-    # Export to local OTel Collector via OTLP
-    additional_metric_readers=[],  # Will use default OTLP exporter
 )
 
 # Create a histogram metric for file upload sizes
