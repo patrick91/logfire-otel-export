@@ -222,12 +222,7 @@ If you didn't use `just setup`, you can manually configure Grafana:
 
 #### 1. Add Prometheus Data Source
 
-Run the setup script:
-```bash
-./setup-grafana.sh
-```
-
-Or manually:
+Manually configure:
 1. Open Grafana at http://localhost:3000
 2. Go to **Connections → Data Sources**
 3. Click **Add data source**
@@ -389,7 +384,6 @@ docker compose down -v
 ├── grafana-dashboard.json        # Dashboard for Logfire version (logfire_* metrics)
 ├── grafana-dashboard-direct.json # Dashboard for Direct version (no prefix)
 ├── setup.sh                      # Complete setup script (Grafana + both dashboards)
-├── setup-grafana.sh              # Configure Prometheus data source in Grafana
 ├── .pre-commit-config.yaml       # Pre-commit hooks (ruff linter + formatter)
 ├── justfile                      # Just commands for easy task running
 ├── pyproject.toml                # Python dependencies + ruff config

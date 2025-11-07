@@ -34,9 +34,9 @@ exporters:
     resource_to_telemetry_conversion:
       enabled: true
 
-  # Logging exporter for debugging (optional)
-  logging:
-    loglevel: info
+  # Debug exporter for debugging (optional)
+  debug:
+    verbosity: detailed
 
 service:
   pipelines:
@@ -44,4 +44,4 @@ service:
     metrics:
       receivers: [otlp]
       processors: [batch]
-      exporters: [prometheus, logging]
+      exporters: [prometheus, debug]

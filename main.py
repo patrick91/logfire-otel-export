@@ -14,11 +14,20 @@ import logfire
 # Configure OpenTelemetry to export to local OTel Collector
 # The SDK will automatically append /v1/traces and /v1/metrics to this URL
 os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
+# Explicitly enable OTLP exporter for metrics
+os.environ["OTEL_METRICS_EXPORTER"] = "otlp"
 
 # Configure Logfire to use OTLP exporter (not Logfire cloud)
 logfire.configure(
     send_to_logfire=False,  # Don't send to Logfire cloud
     service_name="histogram-demo",
+)
+
+# Create a counter metric for total uploads
+upload_counter = logfire.metric_counter(
+    "file_uploads_total",
+    unit="1",
+    description="Total number of file uploads",
 )
 
 # Create a histogram metric for file upload sizes
@@ -57,6 +66,9 @@ def simulate_file_upload():
     else:
         # Very large files: 50MB to 100MB
         size = random.randint(50_000_000, 100_000_000)
+
+    # Increment the upload counter
+    upload_counter.add(1, attributes={"file_type": file_type})
 
     # Record the observation using Logfire
     uploaded_file_bytes.record(size, attributes={"file_type": file_type})

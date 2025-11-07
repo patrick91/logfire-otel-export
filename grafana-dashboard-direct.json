@@ -13,7 +13,7 @@
       {
         "id": 1,
         "type": "stat",
-        "title": "Total Uploads",
+        "title": "Total Uploads (Counter)",
         "gridPos": {
           "x": 0,
           "y": 0,
@@ -22,7 +22,7 @@
         },
         "targets": [
           {
-            "expr": "uploaded_file_bytes_count",
+            "expr": "file_uploads_total",
             "refId": "A"
           }
         ],
@@ -357,6 +357,34 @@
             "axisPlacement": "left",
             "reverse": false,
             "unit": "bytes"
+          }
+        }
+      },
+      {
+        "id": 11,
+        "type": "timeseries",
+        "title": "Upload Counter by File Type",
+        "gridPos": {
+          "x": 0,
+          "y": 28,
+          "w": 24,
+          "h": 8
+        },
+        "targets": [
+          {
+            "expr": "file_uploads_total",
+            "refId": "A",
+            "legendFormat": "{{file_type}}"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "smooth",
+              "fillOpacity": 10
+            }
           }
         }
       }

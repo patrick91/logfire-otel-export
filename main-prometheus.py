@@ -8,7 +8,14 @@ histogram metrics directly for Prometheus to scrape.
 import random
 import time
 
-from prometheus_client import Histogram, start_http_server
+from prometheus_client import Counter, Histogram, start_http_server
+
+# Create a counter metric for total uploads
+upload_counter = Counter(
+    "file_uploads_total",
+    "Total number of file uploads",
+    labelnames=["file_type"],
+)
 
 # Create a histogram metric for file upload sizes
 # Explicit buckets for better visualization
@@ -55,6 +62,9 @@ def simulate_file_upload():
     else:
         # Very large files: 50MB to 100MB
         size = random.randint(50_000_000, 100_000_000)
+
+    # Increment the upload counter
+    upload_counter.labels(file_type=file_type).inc()
 
     # Record the observation with label
     uploaded_file_bytes.labels(file_type=file_type).observe(size)
