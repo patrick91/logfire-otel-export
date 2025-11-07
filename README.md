@@ -13,14 +13,24 @@ This project demonstrates:
 
 ## Architecture
 
+This demo runs **two versions side-by-side** for comparison:
+
+### Logfire Version
 ```
-Python App (Logfire) → OTel Collector → Prometheus → Grafana
+Python (Logfire) → OTLP (port 4318) → OTel Collector (port 8889) → Prometheus → Grafana
 ```
 
-- **Python Application** (`main.py`): Simulates file uploads with varying sizes and exports OpenTelemetry histogram metrics via OTLP
-- **OpenTelemetry Collector**: Receives OTLP metrics on port 4318 and exposes them in Prometheus format on port 8889
-- **Prometheus**: Scrapes metrics from the OTel Collector every 5 seconds
-- **Grafana**: Visualizes the histogram data with various panel types
+### Direct Prometheus Version
+```
+Python (prometheus_client) → HTTP (port 8001) → Prometheus → Grafana
+```
+
+**Components:**
+- **main.py** (Logfire): Exports OpenTelemetry histogram metrics via OTLP to OTel Collector
+- **main-prometheus.py** (Direct): Exposes native Prometheus metrics directly
+- **OpenTelemetry Collector**: Receives OTLP metrics on port 4318, exposes in Prometheus format on port 8889
+- **Prometheus**: Scrapes from both OTel Collector (port 8889) and Direct app (port 8001)
+- **Grafana**: Visualizes both dashboards for comparison
 
 ## Prerequisites
 
@@ -50,8 +60,8 @@ just grafana
 ```
 
 This runs:
-- **Logfire version** on port 8000 → OTLP → OTel Collector → Prometheus
-- **Direct version** on port 8001 → Prometheus directly
+- **Logfire version**: Exports via OTLP (port 4318) → OTel Collector (port 8889) → Prometheus
+- **Direct version**: Exposes metrics on port 8001 → Prometheus directly
 
 Both dashboards will be available in Grafana:
 - **Histogram Demo (Logfire + OTel)**: http://localhost:3000/d/histogram-demo-logfire
@@ -100,6 +110,30 @@ The `just setup` command automatically:
 - `just lint` - Run ruff linter
 - `just format` - Run ruff formatter
 - `just check` - Run both linter and formatter
+
+## How Logfire is Configured
+
+The Logfire version (`main.py`) is configured to export metrics to a local OpenTelemetry Collector:
+
+```python
+import os
+import logfire
+
+# Configure OpenTelemetry to export to local OTel Collector
+os.environ["OTEL_EXPORTER_OTLP_ENDPOINT"] = "http://localhost:4318"
+
+# Configure Logfire to use OTLP exporter (not Logfire cloud)
+logfire.configure(
+    send_to_logfire=False,  # Don't send to Logfire cloud
+    service_name="histogram-demo",
+)
+```
+
+**Key points:**
+- `OTEL_EXPORTER_OTLP_ENDPOINT` must be set **before** calling `logfire.configure()`
+- The SDK automatically appends `/v1/metrics` and `/v1/traces` to the endpoint
+- `send_to_logfire=False` disables sending to Logfire's cloud service
+- Metrics flow: Logfire → OTLP (port 4318) → OTel Collector → Prometheus
 
 ### Manual Setup (Without Just)
 
@@ -347,21 +381,22 @@ docker compose down -v
 
 ```
 .
-├── main.py                      # Logfire version - exports via OpenTelemetry
-├── main-prometheus.py           # Direct Prometheus version - native prometheus_client
-├── docker-compose.yml           # Docker Compose (OTel Collector, Prometheus, Grafana)
-├── prometheus.yml               # Prometheus config - scrapes from both sources
-├── otel-collector-config.yml   # OpenTelemetry Collector configuration
-├── grafana-dashboard.json       # Dashboard for Logfire version (logfire_* metrics)
+├── main.py                       # Logfire version - exports via OpenTelemetry
+├── main-prometheus.py            # Direct Prometheus version - native prometheus_client
+├── docker-compose.yml            # Docker Compose (OTel Collector, Prometheus, Grafana)
+├── prometheus.yml                # Prometheus config - scrapes from both sources
+├── otel-collector-config.yml    # OpenTelemetry Collector configuration
+├── grafana-dashboard.json        # Dashboard for Logfire version (logfire_* metrics)
 ├── grafana-dashboard-direct.json # Dashboard for Direct version (no prefix)
-├── setup.sh                     # Complete setup script (Grafana + both dashboards)
-├── setup-grafana.sh            # Configure Prometheus data source in Grafana
-├── justfile                    # Just commands for easy task running
-├── pyproject.toml               # Python dependencies
-└── README.md                   # This file
+├── setup.sh                      # Complete setup script (Grafana + both dashboards)
+├── setup-grafana.sh              # Configure Prometheus data source in Grafana
+├── .pre-commit-config.yaml       # Pre-commit hooks (ruff linter + formatter)
+├── justfile                      # Just commands for easy task running
+├── pyproject.toml                # Python dependencies + ruff config
+└── README.md                     # This file
 ```
 
-**Simplified!** Only 9 configuration files instead of the original 15+.
+**Clean and simple!** Only essential files for running both comparison versions.
 
 ## Learn More
 
