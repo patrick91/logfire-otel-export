@@ -1,0 +1,10 @@
+[project]
+name = "logfire-otel-histogram"
+version = "0.1.0"
+description = "Logfire histogram demo with OpenTelemetry and Grafana visualization"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "logfire>=0.50.0",
+    "prometheus-client>=0.19.0",
+]
